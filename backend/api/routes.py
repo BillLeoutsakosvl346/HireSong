@@ -34,7 +34,7 @@ async def generate_video(
     - company_url: Company website URL (string)
     
     Returns:
-    - JSON with paths to all generated files
+    - MP4 video file directly
     """
     
     # Validate file types
@@ -54,18 +54,25 @@ async def generate_video(
         cv_path = cv_temp.name
     
     try:
-        # Run the pipeline
+        # Run the pipeline (just like test_full_pipeline.py!)
         results = await generate_hiresong_video(
             selfie_path=selfie_path,
             cv_path=cv_path,
             company_url=company_url
         )
         
-        return JSONResponse(content={
-            "status": "success",
-            "message": "HireSong video generated successfully!",
-            "results": results
-        })
+        # Get the final video path
+        final_video_path = results.get("final_video")
+        
+        if not final_video_path or not os.path.exists(final_video_path):
+            raise HTTPException(status_code=500, detail="Video generation succeeded but final video not found")
+        
+        # Return the video file directly to the frontend
+        return FileResponse(
+            final_video_path,
+            media_type="video/mp4",
+            filename="hiresong_pitch.mp4"
+        )
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Pipeline failed: {str(e)}")
