@@ -3,6 +3,7 @@
 *.doc
 *.docx
 *.txt
+*.mp3
 
 # But keep this directory in git
 !.gitignore

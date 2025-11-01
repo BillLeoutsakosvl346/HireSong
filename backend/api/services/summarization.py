@@ -81,16 +81,14 @@ def summarize_company_website(website_text: str) -> str:
     
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     
-    system_prompt = """You are an expert at analyzing company websites.
+    system_prompt = """You are an expert at analyzing and summarizing company websites.
 
-Extract and summarize:
-- What products/services they offer
-- Their mission and values
-- Company culture and tone
-- Key technologies they mention
-- What type of talent they're likely looking for
+Read through all the content provided and create a comprehensive summary that captures:
+- The main purpose and focus of the company
+- All key information presented on the website
+- Any notable details about what they do, how they operate, and what they value
 
-Keep it concise but comprehensive. Format as a readable outline."""
+Be thorough and include everything important. Format as a clear, readable summary."""
 
     print("Summarizing company website with OpenAI...")
     
