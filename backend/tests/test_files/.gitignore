@@ -1,0 +1,9 @@
+# Ignore all test files
+*.pdf
+*.doc
+*.docx
+*.txt
+
+# But keep this directory in git
+!.gitignore
+
