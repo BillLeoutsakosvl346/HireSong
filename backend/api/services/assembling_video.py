@@ -4,8 +4,29 @@ Combines 6 five-second videos with a 30-second music track.
 """
 
 import os
+import sys
+import warnings
+from contextlib import contextmanager
+from io import StringIO
 from moviepy import VideoFileClip, AudioFileClip, concatenate_videoclips
 from moviepy.audio.fx.AudioLoop import AudioLoop
+
+# Suppress MoviePy/ffmpeg verbose output
+warnings.filterwarnings('ignore')
+
+
+@contextmanager
+def suppress_output():
+    """Context manager to suppress stdout and stderr."""
+    old_stdout = sys.stdout
+    old_stderr = sys.stderr
+    try:
+        sys.stdout = StringIO()
+        sys.stderr = StringIO()
+        yield
+    finally:
+        sys.stdout = old_stdout
+        sys.stderr = old_stderr
 
 
 def assemble_final_video(
@@ -30,7 +51,7 @@ def assemble_final_video(
         Path to the assembled video file
     """
     
-    print("🎬 Assembling final video with MoviePy v2...")
+    print("🎬 Assembling final video...")
     
     video_clips = []
     audio = None
@@ -39,45 +60,37 @@ def assemble_final_video(
     
     try:
         # Load all video clips and force each to exactly 5.0s
-        print("  Loading video clips...")
         video_paths = [video_1, video_2, video_3, video_4, video_5, video_6]
         
         for i, video_path in enumerate(video_paths, 1):
             if not os.path.exists(video_path):
                 raise FileNotFoundError(f"Video {i} not found: {video_path}")
             
-            clip = VideoFileClip(video_path).subclipped(0, 5)  # Force exactly 5s
+            with suppress_output():
+                clip = VideoFileClip(video_path).subclipped(0, 5)  # Force exactly 5s
             video_clips.append(clip)
-            print(f"    ✅ Loaded video {i}/6 - Duration: 5.0s (trimmed)")
         
         # Concatenate all video clips (6 × 5s = 30s exactly)
-        print("  Concatenating videos...")
         final_clip = concatenate_videoclips(video_clips, method="compose")
-        print(f"    ✅ Concatenated - Total duration: 30.0s")
         
         # Load music and force to exactly 30s
-        print("  Loading music...")
         if not os.path.exists(music_path):
             raise FileNotFoundError(f"Music file not found: {music_path}")
         
-        audio = AudioFileClip(music_path)
-        print(f"    ✅ Loaded music - Original duration: {audio.duration:.2f}s")
-        
-        # Make music exactly 30s (trim if longer, loop if shorter)
-        if audio.duration >= 30:
-            music = audio.subclipped(0, 30)
-            print(f"    Trimmed music to 30.0s")
-        else:
-            music = audio.with_effects([AudioLoop(duration=30)])
-            print(f"    Looped music to 30.0s")
+        with suppress_output():
+            audio = AudioFileClip(music_path)
+            
+            # Make music exactly 30s (trim if longer, loop if shorter)
+            if audio.duration >= 30:
+                music = audio.subclipped(0, 30)
+            else:
+                music = audio.with_effects([AudioLoop(duration=30)])
         
         # Attach audio (v2 method) and pin duration to 30s
-        print("  Adding music to video...")
         final_clip = final_clip.with_audio(music).with_duration(30)
         
         # Write the final video
-        print(f"  Writing final video to: {output_path}")
-        print("  This may take a minute...")
+        print("  Writing video...")
         
         final_clip.write_videofile(
             output_path,
@@ -94,20 +107,16 @@ def assemble_final_video(
             raise Exception("Failed to create output video")
         
         file_size = os.path.getsize(output_path) / (1024 * 1024)  # MB
-        print(f"\n✅ Final video assembled successfully!")
-        print(f"   Output: {output_path}")
-        print(f"   Size: {file_size:.2f} MB")
-        print(f"   Duration: 30.0s")
+        print(f"✅ Video assembled: {file_size:.2f} MB")
         
         return output_path
         
     except Exception as e:
-        print(f"\n❌ Video assembly failed: {str(e)}")
+        print(f"❌ Assembly failed: {str(e)}")
         raise Exception(f"Failed to assemble video: {str(e)}")
         
     finally:
         # Always clean up resources
-        print("  Cleaning up clips...")
         for clip in video_clips:
             try:
                 clip.close()

@@ -63,8 +63,14 @@ Your job is to create a complete song structure with:
 - 6 scenes of exactly 5 seconds each (0-5s, 5-10s, 10-15s, 15-20s, 20-25s, 25-30s)
 
 CRITICAL LYRICS CONSTRAINTS:
-- Each scene's lyrics MUST be around 8-12 words 
-- Keep it SHORT and punchy - remember, it's only 5 seconds per scene!
+- **THINK ABOUT THE GENRE YOU CHOOSE** - Different genres have different pacing!
+- Adjust word count per scene based on the genre:
+  * **Rap/Hip-Hop**: 15-20 words per scene (fast delivery)
+  * **Pop/Rock**: 8-12 words per scene (moderate pace)
+  * **Ballad/Slow**: 5-8 words per scene (slower, drawn-out)
+  * **Electronic/Dance**: 6-10 words per scene (repetitive, punchy)
+  * **Country/Folk**: 10-14 words per scene (storytelling pace)
+- Match your lyrics to the natural rhythm and speed of your chosen genre
 - Make lyrics rhyme when possible
 - Be creative, funny, and memorable
 - Weave in the candidate's best achievements and the company's keywords naturally
@@ -79,20 +85,21 @@ CANDIDATE SUMMARY:
 COMPANY SUMMARY:
 {company_summary}
 
-Remember: Keep each scene's lyrics to 8-12 words maximum! This is crucial for timing."""
+Remember: Choose a genre first, then adjust the word count per scene to match that genre's natural pacing!"""
 
-    print("🎵 Generating song lyrics with OpenAI...")
+    print("🎵 Generating song lyrics with OpenAI GPT-5 (low reasoning)...")
     print(f"   Using structured outputs to ensure format...")
     
     try:
         completion = client.beta.chat.completions.parse(
-            model="gpt-4o-2024-08-06",
+            model="gpt-5",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
             response_format=SongStructure,
-            temperature=0.9  # Higher temperature for more creativity
+            reasoning_effort="low",  # Low reasoning for creative, fast generation
+            max_completion_tokens=20000  # Budget for the answer tokens
         )
         
         song = completion.choices[0].message.parsed
