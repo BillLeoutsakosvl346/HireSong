@@ -1,0 +1,11 @@
+# Core Dependencies
+elevenlabs>=0.2.0          # ElevenLabs official SDK
+python-dotenv>=1.0.0       # Environment variable management
+
+# FastAPI Dependencies (for future FastAPI integration)
+# fastapi>=0.104.1
+# uvicorn>=0.24.0
+
+# Additional useful packages
+# pydantic>=2.5.0            # Data validation (for future Pydantic schemas)
+# httpx>=0.25.0              # Modern HTTP client
