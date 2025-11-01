@@ -1,0 +1,10 @@
+# Ignore all test images
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.webp
+
+# But keep this directory in git
+!.gitignore
+
