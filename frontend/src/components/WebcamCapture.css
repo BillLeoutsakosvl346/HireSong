@@ -1,0 +1,167 @@
+.webcam-capture {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: #000;
+  transition: transform 0.3s ease;
+}
+
+.flash-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: white;
+  z-index: 20;
+  animation: flash 0.3s ease-out;
+}
+
+@keyframes flash {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.webcam-video {
+  width: 100%;
+  height: auto;
+  display: block;
+  transform: scaleX(-1); /* Mirror effect for selfie */
+  transition: none;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0) scaleX(-1);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.brightness-control {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.brightness-label {
+  text-align: center;
+  font-weight: 600;
+  color: #667eea;
+  font-size: 1rem;
+  min-height: 24px;
+}
+
+.brightness-slider-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.brightness-icon {
+  font-size: 1.5rem;
+  user-select: none;
+}
+
+.brightness-slider {
+  flex: 1;
+  height: 12px;
+  border-radius: 6px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.brightness-slider:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.brightness-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  cursor: grab;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+}
+
+.brightness-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.2);
+}
+
+.brightness-slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  cursor: grab;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+}
+
+.brightness-slider::-moz-range-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.2);
+}
+
+.brightness-hint {
+  text-align: center;
+  min-height: 24px;
+  font-size: 0.9rem;
+}
+
+.hint-text {
+  color: #666;
+  font-weight: 600;
+  animation: pulse-text 0.5s ease-in-out infinite;
+}
+
+.hint-text.success {
+  color: #28a745;
+  animation: none;
+}
+
+@keyframes pulse-text {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.webcam-error {
+  padding: 15px;
+  background: #fee;
+  color: #c33;
+  border-radius: 10px;
+  border-left: 4px solid #c33;
+  margin-top: 15px;
+}
+
+@media (max-width: 768px) {
+  .video-container {
+    max-width: 100%;
+  }
+
+  .brightness-control {
+    max-width: 100%;
+  }
+}
