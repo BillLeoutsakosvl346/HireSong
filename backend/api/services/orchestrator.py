@@ -33,7 +33,8 @@ async def generate_hiresong_video(
     selfie_path: str,
     cv_path: str,
     company_url: str,
-    output_dir: str = None
+    output_dir: str = None,
+    preferred_genre: str = None
 ) -> Dict[str, Any]:
     """
     Orchestrate the full HireSong pipeline with async optimization.
@@ -43,6 +44,7 @@ async def generate_hiresong_video(
         cv_path: Path to candidate's CV PDF
         company_url: URL of target company website
         output_dir: Directory to save all outputs (defaults to backend/results/{timestamp})
+        preferred_genre: Optional user-selected music genre
         
     Returns:
         Dictionary with paths to all generated files
@@ -121,7 +123,7 @@ async def generate_hiresong_video(
     print("-"*80)
     
     song_structure = await run_sync_in_thread(
-        generate_song_lyrics, cv_summary, company_summary
+        generate_song_lyrics, cv_summary, company_summary, preferred_genre
     )
     
     # Save lyrics
@@ -235,11 +237,15 @@ async def generate_hiresong_video(
     
     final_video_path = os.path.join(output_dir, "08_final_video.mp4")
     
+    # Extract lyrics from song structure for overlay
+    lyrics_list = [scene.lyrics for scene in song_structure.scenes]
+    
     await run_sync_in_thread(
         assemble_from_list,
         [vid["video_path"] for vid in videos_results],
         music_path,
-        final_video_path
+        final_video_path,
+        lyrics_list  # Pass lyrics for overlay
     )
     
     results["final_video"] = final_video_path

@@ -8,6 +8,7 @@ function App() {
   const [selfieFile, setSelfieFile] = useState(null)
   const [cvFile, setCvFile] = useState(null)
   const [companyUrl, setCompanyUrl] = useState('')
+  const [genre, setGenre] = useState('Surprise Me')
   const [isGenerating, setIsGenerating] = useState(false)
   const [videoUrl, setVideoUrl] = useState(null)
   const [error, setError] = useState(null)
@@ -79,6 +80,7 @@ function App() {
       formData.append('selfie', selfieFile)
       formData.append('cv', cvFile)
       formData.append('company_url', companyUrl)
+      formData.append('genre', genre)
 
       const response = await fetch('/api/generate', {
         method: 'POST',
@@ -116,6 +118,7 @@ function App() {
     setSelfieFile(null)
     setCvFile(null)
     setCompanyUrl('')
+    setGenre('Surprise Me')
     setVideoUrl(null)
     setError(null)
     setShowWebcam(false)
@@ -210,6 +213,29 @@ function App() {
                 onChange={(e) => setCompanyUrl(e.target.value)}
                 className="url-input"
               />
+            </div>
+
+            {/* Genre Selection */}
+            <div className="input-group">
+              <h2>🎸 Music Genre</h2>
+              <select
+                value={genre}
+                onChange={(e) => setGenre(e.target.value)}
+                className="genre-select"
+              >
+                <option value="Surprise Me">🎲 Surprise Me</option>
+                <option value="Pop">🎤 Pop</option>
+                <option value="Rock">🎸 Rock</option>
+                <option value="Rap">🎤 Rap / Hip-Hop</option>
+                <option value="Electronic">🎧 Electronic / Dance</option>
+                <option value="Country">🤠 Country</option>
+                <option value="Jazz">🎷 Jazz</option>
+                <option value="R&B">💿 R&B</option>
+                <option value="Metal">🤘 Metal</option>
+                <option value="Indie">🎹 Indie</option>
+                <option value="Ballad">🎻 Ballad</option>
+              </select>
+              <p className="hint-text">Choose a music genre for your pitch song, or let AI surprise you!</p>
             </div>
 
             {/* Error Message */}

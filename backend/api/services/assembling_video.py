@@ -8,7 +8,8 @@ import sys
 import warnings
 from contextlib import contextmanager
 from io import StringIO
-from moviepy import VideoFileClip, AudioFileClip, concatenate_videoclips
+from typing import List, Optional
+from moviepy import VideoFileClip, AudioFileClip, concatenate_videoclips, CompositeVideoClip, TextClip
 from moviepy.audio.fx.AudioLoop import AudioLoop
 
 # Suppress MoviePy/ffmpeg verbose output
@@ -29,6 +30,41 @@ def suppress_output():
         sys.stderr = old_stderr
 
 
+def add_lyrics_overlay(video_clip, lyrics: List[str]):
+    """
+    Add lyrics overlay at the bottom of the video.
+    
+    Args:
+        video_clip: The concatenated video clip (30s)
+        lyrics: List of 6 lyrics strings, one for each 5-second scene
+        
+    Returns:
+        Video clip with lyrics overlay
+    """
+    text_clips = []
+    
+    for i, lyric in enumerate(lyrics):
+        start_time = i * 5  # Each scene is 5 seconds
+        
+        # Create text clip with styling
+        txt_clip = TextClip(
+            text=lyric,
+            font_size=40,
+            color='white',
+            font='Arial-Bold',
+            stroke_color='black',
+            stroke_width=2,
+            method='caption',
+            size=(video_clip.w - 100, None),  # Width with padding
+            duration=5
+        ).with_start(start_time).with_position(('center', video_clip.h - 100))
+        
+        text_clips.append(txt_clip)
+    
+    # Composite video with text overlays
+    return CompositeVideoClip([video_clip] + text_clips)
+
+
 def assemble_final_video(
     video_1: str,
     video_2: str,
@@ -37,7 +73,8 @@ def assemble_final_video(
     video_5: str,
     video_6: str,
     music_path: str,
-    output_path: str
+    output_path: str,
+    lyrics: Optional[List[str]] = None
 ) -> str:
     """
     Assemble 6 five-second videos with music into a final 30-second video.
@@ -46,6 +83,7 @@ def assemble_final_video(
         video_1 to video_6: Paths to the 6 video files (in order)
         music_path: Path to the music file (30 seconds)
         output_path: Path where the final video will be saved
+        lyrics: Optional list of 6 lyrics strings to overlay on each scene
         
     Returns:
         Path to the assembled video file
@@ -72,6 +110,11 @@ def assemble_final_video(
         
         # Concatenate all video clips (6 × 5s = 30s exactly)
         final_clip = concatenate_videoclips(video_clips, method="compose")
+        
+        # Add lyrics overlay if provided
+        if lyrics and len(lyrics) == 6:
+            print("  Adding lyrics overlay...")
+            final_clip = add_lyrics_overlay(final_clip, lyrics)
         
         # Load music and force to exactly 30s
         if not os.path.exists(music_path):
@@ -142,7 +185,8 @@ def assemble_final_video(
 def assemble_from_list(
     video_paths: list,
     music_path: str,
-    output_path: str
+    output_path: str,
+    lyrics: Optional[List[str]] = None
 ) -> str:
     """
     Convenience function to assemble videos from a list.
@@ -151,6 +195,7 @@ def assemble_from_list(
         video_paths: List of 6 video file paths (in order)
         music_path: Path to the music file
         output_path: Path where the final video will be saved
+        lyrics: Optional list of 6 lyrics strings to overlay on each scene
         
     Returns:
         Path to the assembled video file
@@ -167,6 +212,7 @@ def assemble_from_list(
         video_paths[4],
         video_paths[5],
         music_path,
-        output_path
+        output_path,
+        lyrics
     )
 

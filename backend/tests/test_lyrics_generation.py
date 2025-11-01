@@ -73,8 +73,10 @@ Looking for:
 """
 
 
-# Test
-print("Testing lyrics generation...")
+# Test 1: No genre specified (AI chooses)
+print("=" * 80)
+print("TEST 1: AI-selected genre (Surprise Me)")
+print("=" * 80)
 print(f"\nCV Summary Preview: {TEST_CV_SUMMARY[:150]}...")
 print(f"\nCompany Summary Preview: {TEST_COMPANY_SUMMARY[:150]}...")
 print("\nGenerating song lyrics... (takes ~10-15 seconds)\n")
@@ -111,4 +113,43 @@ output_file = os.path.join(BACKEND_DIR, "tests", "test_files", "generated_lyrics
 with open(output_file, 'w') as f:
     json.dump(song.model_dump(), f, indent=2)
 print(f"\n💾 Saved to: {output_file}")
+
+# Test 2: With specific genre
+print("\n\n" + "=" * 80)
+print("TEST 2: User-selected genre (Rap)")
+print("=" * 80)
+print("\nGenerating Rap song lyrics... (takes ~10-15 seconds)\n")
+
+rap_song = generate_song_lyrics(TEST_CV_SUMMARY, TEST_COMPANY_SUMMARY, preferred_genre="Rap")
+
+print("\n✅ Success!")
+print("\n" + "=" * 80)
+print("GENERATED RAP SONG STRUCTURE")
+print("=" * 80)
+
+print(f"\n🎵 Title: {rap_song.song_title}")
+print(f"🎸 Genre: {rap_song.genre} {'✅' if 'rap' in rap_song.genre.lower() or 'hip' in rap_song.genre.lower() else '⚠️ (should be Rap!)'}")
+print(f"🥁 BPM: {rap_song.bpm}")
+print(f"😊 Mood: {rap_song.mood}")
+print(f"🎤 Vocal Style: {rap_song.vocal_style}")
+print(f"🎹 Instrumentation: {rap_song.instrumentation}")
+
+print("\n" + "-" * 80)
+print("SCENES (6 × 5 seconds each)")
+print("-" * 80)
+
+for scene in rap_song.scenes:
+    print(f"\n[Scene {scene.scene_num}: {scene.time_range}] - {scene.description}")
+    print(f"  Lyrics: \"{scene.lyrics}\"")
+    word_count = len(scene.lyrics.split())
+    print(f"  Word count: {word_count} {'✅' if 15 <= word_count <= 20 else '⚠️ (expected 15-20 for Rap!)'}")
+    print(f"  Musical mood: {scene.musical_mood}")
+
+print("\n" + "=" * 80)
+
+# Save rap version
+rap_output_file = os.path.join(BACKEND_DIR, "tests", "test_files", "generated_lyrics_rap.json")
+with open(rap_output_file, 'w') as f:
+    json.dump(rap_song.model_dump(), f, indent=2)
+print(f"\n💾 Saved rap version to: {rap_output_file}")
 

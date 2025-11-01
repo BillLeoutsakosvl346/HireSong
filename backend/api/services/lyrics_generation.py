@@ -40,13 +40,14 @@ def _ensure_openai_key():
     return key
 
 
-def generate_song_lyrics(cv_summary: str, company_summary: str) -> SongStructure:
+def generate_song_lyrics(cv_summary: str, company_summary: str, preferred_genre: str = None) -> SongStructure:
     """
     Generate creative song lyrics based on CV and company summaries.
     
     Args:
         cv_summary: Summary of the candidate's CV with skills and experience
         company_summary: Summary of the company website with their values and products
+        preferred_genre: Optional genre preference from user (e.g., "Pop", "Rap", "Rock")
         
     Returns:
         SongStructure object with complete song data including 6 scenes
@@ -55,7 +56,12 @@ def generate_song_lyrics(cv_summary: str, company_summary: str) -> SongStructure
     
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     
-    system_prompt = """You are a creative and funny songwriter who creates catchy, memorable 30-second "hire me" pitch songs.
+    # Build system prompt with genre constraint if specified
+    genre_instruction = ""
+    if preferred_genre and preferred_genre != "Surprise Me":
+        genre_instruction = f"\n\n**IMPORTANT: You MUST create a {preferred_genre} song. This is the user's explicit genre choice.**"
+    
+    system_prompt = f"""You are a creative and funny songwriter who creates catchy, memorable 30-second "hire me" pitch songs.
 
 Your job is to create a complete song structure with:
 - A catchy title
@@ -75,7 +81,7 @@ CRITICAL LYRICS CONSTRAINTS:
 - Be creative, funny, and memorable
 - Weave in the candidate's best achievements and the company's keywords naturally
 
-IMPORTANT: Try making it as ridiculus and funny as possible!"""
+IMPORTANT: Try making it as ridiculus and funny as possible!{genre_instruction}"""
 
     user_prompt = f"""Create a catchy 30-second "hire me" song for this candidate applying to this company.
 
@@ -85,9 +91,13 @@ CANDIDATE SUMMARY:
 COMPANY SUMMARY:
 {company_summary}
 
-Remember: Choose a genre first, then adjust the word count per scene to match that genre's natural pacing!"""
+Remember: {"Create a " + preferred_genre + " song and adjust" if preferred_genre and preferred_genre != "Surprise Me" else "Choose a genre first, then adjust"} the word count per scene to match that genre's natural pacing!"""
 
     print("🎵 Generating song lyrics with OpenAI GPT-5 (low reasoning)...")
+    if preferred_genre and preferred_genre != "Surprise Me":
+        print(f"   Genre: {preferred_genre} (user selected)")
+    else:
+        print(f"   Genre: AI will choose")
     print(f"   Using structured outputs to ensure format...")
     
     try:

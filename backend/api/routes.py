@@ -23,7 +23,8 @@ async def health_check():
 async def generate_video(
     selfie: UploadFile = File(..., description="Candidate's selfie (JPG/PNG)"),
     cv: UploadFile = File(..., description="Candidate's CV (PDF)"),
-    company_url: str = Form(..., description="Target company website URL")
+    company_url: str = Form(..., description="Target company website URL"),
+    genre: str = Form(None, description="Preferred music genre (optional)")
 ):
     """
     Generate a complete HireSong video.
@@ -32,6 +33,7 @@ async def generate_video(
     - selfie: Image file (JPG/PNG)
     - cv: PDF file
     - company_url: Company website URL (string)
+    - genre: Preferred music genre (optional)
     
     Returns:
     - MP4 video file directly
@@ -58,7 +60,8 @@ async def generate_video(
         results = await generate_hiresong_video(
             selfie_path=selfie_path,
             cv_path=cv_path,
-            company_url=company_url
+            company_url=company_url,
+            preferred_genre=genre
         )
         
         # Get the final video path
