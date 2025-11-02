@@ -140,8 +140,9 @@ def assemble_final_video(
             codec='libx264',
             audio_codec='aac',
             fps=24,
-            preset='medium',
-            threads=4,
+            preset='ultrafast',  # Changed from 'medium' - uses less memory, faster
+            threads=2,  # Reduced from 4 to use less memory
+            bitrate='2000k',  # Lower bitrate to reduce memory usage
             logger=None  # Suppress moviepy's verbose output
         )
         
