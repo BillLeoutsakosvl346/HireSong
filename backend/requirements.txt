@@ -17,8 +17,8 @@ PyPDF2==3.0.1
 beautifulsoup4==4.12.3
 requests==2.31.0
 
-# Video editing (will be implemented)
-moviepy==1.0.3
+# Video editing - MoviePy v2 for modern Python support
+moviepy>=2.0.0
 
 # Environment and utilities
 python-dotenv==1.0.1
