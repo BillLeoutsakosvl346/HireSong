@@ -6,7 +6,7 @@ Generates 30-second songs from structured prompts.
 import os
 from dotenv import load_dotenv
 from typing import Dict, Any
-from elevenlabs.client import ElevenLabs
+from elevenlabs import ElevenLabs
 
 
 def _ensure_elevenlabs_key():

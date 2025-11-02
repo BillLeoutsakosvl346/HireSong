@@ -10,7 +10,7 @@ openai==1.12.0
 fal-client==0.4.1
 
 # ElevenLabs for music generation
-elevenlabs==0.2.27
+elevenlabs>=1.0.0
 
 # PDF and text processing
 PyPDF2==3.0.1
