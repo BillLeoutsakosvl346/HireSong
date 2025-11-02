@@ -28,3 +28,7 @@ pydantic==2.5.3
 asyncio==3.4.3
 aiofiles==23.2.1
 
+# Google Sheets database
+gspread==5.12.0
+google-auth==2.25.2
+

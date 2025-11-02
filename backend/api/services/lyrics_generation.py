@@ -81,7 +81,7 @@ CRITICAL LYRICS CONSTRAINTS:
 - Be creative, funny, and memorable
 - Weave in the candidate's best achievements and the company's keywords naturally
 
-IMPORTANT: Try making it as ridiculus and funny as possible!{genre_instruction}"""
+IMPORTANT: Try making it as ridiculus and funny as possible!{genre_instruction}, but also mention things about the person and the company and why the person would be a good fit"""
 
     user_prompt = f"""Create a catchy 30-second "hire me" song for this candidate applying to this company.
 
