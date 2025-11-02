@@ -1,7 +1,0 @@
-.env
-.venv
-*.pyc
-__pycache__/
-.pytest_cache/
-test_results.json
-data/outputs/*.mp3
