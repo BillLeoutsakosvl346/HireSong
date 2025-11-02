@@ -22,7 +22,7 @@ moviepy==1.0.3
 
 # Environment and utilities
 python-dotenv==1.0.1
-pydantic==2.5.3
+pydantic>=2.8.0
 
 # Async support
 asyncio==3.4.3
