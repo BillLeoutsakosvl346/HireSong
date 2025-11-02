@@ -59,6 +59,7 @@ HireSong is built as a **full-stack web application** with three main layers:
 - Orchestrated AI pipeline with parallel execution
 - Multiple AI service integrations (OpenAI, Fal.ai, ElevenLabs)
 - File management and result storage
+- Google Sheets database for logging pipeline runs
 
 ### **3. AI Services Pipeline**
 - **9 sequential steps** with parallel optimizations
@@ -179,6 +180,8 @@ HireSong runs a **9-step orchestrated pipeline** when you click "Generate":
 - **MoviePy v2** - Video editing and assembly
 - **python-dotenv** - Environment variable management
 - **Requests** - HTTP client for API calls
+- **gspread** - Google Sheets API client
+- **google-auth** - Google API authentication
 
 ---
 
@@ -190,6 +193,8 @@ HireSong/
 │   ├── main.py                       # FastAPI app entry point
 │   ├── requirements.txt              # Python dependencies
 │   ├── .env                          # API keys (not in repo)
+│   ├── hiresong-key.json             # Google service account key (not in repo)
+│   ├── init_database.py              # Initialize Google Sheets database
 │   ├── api/
 │   │   ├── routes.py                 # API endpoints (/api/generate, /api/health)
 │   │   └── services/                 # Core AI services
@@ -202,7 +207,8 @@ HireSong/
 │   │       ├── image_generation.py   # Transform selfie (Nano Banana)
 │   │       ├── video_generation.py   # Animate images (Kling)
 │   │       ├── music_generation.py   # Generate music (ElevenLabs)
-│   │       └── assembling_video.py   # Combine everything (MoviePy)
+│   │       ├── assembling_video.py   # Combine everything (MoviePy)
+│   │       └── database.py           # Google Sheets database interface
 │   ├── tests/                        # Unit tests for each service
 │   │   ├── test_full_pipeline.py     # End-to-end pipeline test
 │   │   ├── test_lyrics_generation.py # Test lyrics with/without genre
@@ -254,6 +260,10 @@ HireSong/
   - OpenAI (GPT-5)
   - Fal.ai (for Nano Banana and Kling)
   - ElevenLabs (for music)
+- **Google Cloud Setup** (for database logging):
+  - Google Cloud project with Sheets API enabled
+  - Service Account JSON key
+  - Google Sheet shared with service account
 
 ### **1. Clone the Repository**
 ```bash
@@ -275,7 +285,15 @@ cat > .env << EOF
 OPENAI_API_KEY=your_openai_api_key_here
 FAL_KEY=your_fal_api_key_here
 ELEVENLABS_KEY=your_elevenlabs_api_key_here
+GOOGLE_SHEET_ID=your_google_sheet_id_here
 EOF
+
+# Place your Google service account key file
+# (Download from Google Cloud Console)
+# Save as: backend/hiresong-key.json
+
+# Initialize the Google Sheets database
+python init_database.py
 ```
 
 ### **3. Frontend Setup**
@@ -605,6 +623,47 @@ GET /api/results/20251101_192017/file/08_final_video.mp4
 
 ---
 
+### **11. `database.py` - Google Sheets Database**
+
+**Purpose:** Log all pipeline runs and results to Google Sheets for tracking and analytics.
+
+**Key Functions:**
+- `initialize_sheet()` - Set up sheet with header columns
+- `save_pipeline_start(run_id, company_url, genre)` - Log when pipeline starts
+- `update_pipeline_progress(run_id, cv_summary, company_summary, song_data)` - Update progress
+- `save_pipeline_completion(run_id, final_video_path, image_urls, video_urls)` - Log completion
+- `save_pipeline_error(run_id, error_message)` - Log errors
+- `get_all_runs()` - Retrieve all pipeline runs
+- `get_run_by_id(run_id)` - Get specific run details
+
+**Technology:** Google Sheets API (gspread + google-auth)
+
+**Columns Tracked:**
+- Timestamp, Run ID, Company URL, Genre, Status
+- CV Summary, Company Summary
+- Song Title, Genre, BPM, Mood
+- Scene Lyrics (6 columns for each scene)
+- Output Directory, Final Video Path
+- Music URL, Image URLs, Video URLs
+- Notes (errors or special messages)
+
+**Authentication:**
+- Uses Google Service Account (`hiresong-key.json`)
+- Supports both file-based auth (local) and environment variable (deployment)
+
+**Setup:**
+1. Create a Google Cloud project
+2. Enable Google Sheets API
+3. Create a Service Account and download JSON key as `hiresong-key.json`
+4. Create a Google Sheet and share it with the service account email
+5. Run `python backend/init_database.py` to initialize headers
+
+**Environment Variable (for deployment):**
+- `GOOGLE_APPLICATION_CREDENTIALS_JSON` - Full JSON content of service account key
+- `GOOGLE_SHEET_ID` - The ID from your Google Sheet URL
+
+---
+
 ## 🎨 Frontend Components Explained
 
 ### **1. `App.jsx` - Main Application**
@@ -728,6 +787,12 @@ FAL_KEY=...
 
 # ElevenLabs (for music generation)
 ELEVENLABS_KEY=...
+
+# Google Sheets (for database logging)
+GOOGLE_SHEET_ID=your_sheet_id_here
+
+# For deployment (Railway/Vercel):
+# GOOGLE_APPLICATION_CREDENTIALS_JSON={"type":"service_account",...}
 ```
 
 ---
@@ -759,8 +824,14 @@ npm run dev -- --port 3000
 - Check Fal.ai API status
 
 **MoviePy errors:**
-- Ensure moviepy v2 is installed: `pip install moviepy==1.0.3`
+- Ensure moviepy v2 is installed: `pip install moviepy>=2.0.0`
 - Check ffmpeg is available in PATH
+
+**Google Sheets connection errors:**
+- Verify `hiresong-key.json` exists in `backend/` folder
+- Check that `GOOGLE_SHEET_ID` is correct in `.env`
+- Ensure the Google Sheet is shared with the service account email
+- For deployment, set `GOOGLE_APPLICATION_CREDENTIALS_JSON` environment variable
 
 ---
 
@@ -772,6 +843,8 @@ npm run dev -- --port 3000
 - [Fal.ai Docs](https://fal.ai/docs)
 - [ElevenLabs API](https://elevenlabs.io/docs)
 - [MoviePy Docs](https://zulko.github.io/moviepy/)
+- [Google Sheets API](https://developers.google.com/sheets/api)
+- [gspread Docs](https://docs.gspread.org/)
 
 ---
 
@@ -792,14 +865,17 @@ Built with ❤️ using amazing AI tools:
 
 ## 🚀 Future Improvements
 
-- [ ] Add lyrics overlay (timing issues to fix)
-- [ ] Support more video aspect ratios (9:16 for TikTok)
+- [ ] Fix lyrics overlay timing and font compatibility
+- [ ] Support more video aspect ratios (9:16 for TikTok, 1:1 for Instagram)
 - [ ] Add voice narration option
-- [ ] Database for storing user videos
-- [ ] Social media sharing buttons
-- [ ] More customization options (colors, fonts, effects)
+- [ ] Video hosting and permanent storage (currently temporary)
+- [ ] Analytics dashboard from Google Sheets data
+- [ ] Social media sharing buttons (LinkedIn, Twitter, TikTok)
+- [ ] More customization options (colors, fonts, video effects)
 - [ ] Real-time progress updates with WebSockets
 - [ ] Queue system for multiple concurrent users
+- [ ] Email notifications when video is ready
+- [ ] User accounts and video history
 
 ---
 
