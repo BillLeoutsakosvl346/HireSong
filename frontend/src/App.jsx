@@ -5,6 +5,9 @@ import VideoPlayer from './components/VideoPlayer'
 import './App.css'
 
 function App() {
+  // API URL from environment variable (for deployment) or default to local
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+
   const [selfieFile, setSelfieFile] = useState(null)
   const [cvFile, setCvFile] = useState(null)
   const [companyUrl, setCompanyUrl] = useState('')
@@ -82,7 +85,7 @@ function App() {
       formData.append('company_url', companyUrl)
       formData.append('genre', genre)
 
-      const response = await fetch('/api/generate', {
+      const response = await fetch(`${API_URL}/api/generate`, {
         method: 'POST',
         body: formData,
       })

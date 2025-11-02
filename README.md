@@ -15,6 +15,7 @@ HireSong is an AI-powered video generator that creates a unique 30-second music 
 - [Project Structure](#project-structure)
 - [Setup & Installation](#setup--installation)
 - [Running the Application](#running-the-application)
+- [🚀 Deployment](#-deployment)
 - [API Documentation](#api-documentation)
 - [Backend Services Explained](#backend-services-explained)
 - [Frontend Components Explained](#frontend-components-explained)
@@ -321,6 +322,48 @@ Visit **http://localhost:5173** and:
 5. Click "Generate Video Pitch" 🎬
 6. Wait ~3-5 minutes ☕
 7. Watch your personalized music video! 🎉
+
+---
+
+## 🚀 Deployment
+
+Ready to deploy your HireSong app online? **See the complete deployment guide:** [DEPLOYMENT.md](DEPLOYMENT.md)
+
+### Quick Overview
+
+**Recommended Stack:**
+- **Backend:** Railway (handles long-running processes, no timeouts)
+- **Frontend:** Vercel (fast, free, global CDN)
+
+**Why not Vercel for backend?**
+- Vercel has 10-60 second timeouts
+- Your pipeline takes 2-3 minutes
+- Railway has no timeout limits and supports persistent processes
+
+**Deployment Time:**
+- Backend on Railway: ~5 minutes
+- Frontend on Vercel: ~3 minutes
+- Total: **~8 minutes** ⚡
+
+**What you need:**
+- Railway account (free tier: $5 credit/month)
+- Vercel account (free tier: unlimited for frontend)
+- Your API keys (OpenAI, Fal, ElevenLabs)
+- Google Sheets credentials (`hiresong-key.json`)
+
+**Quick Start:**
+```bash
+# Deploy backend to Railway
+cd backend
+railway init
+railway up
+
+# Deploy frontend to Vercel
+cd frontend
+vercel
+```
+
+**Full instructions:** [DEPLOYMENT.md](DEPLOYMENT.md)
 
 ---
 
