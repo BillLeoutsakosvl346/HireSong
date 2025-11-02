@@ -4,6 +4,7 @@ Stores all pipeline runs and their results in a Google Sheet.
 """
 
 import os
+import json
 import gspread
 from google.oauth2.service_account import Credentials
 from datetime import datetime
@@ -55,15 +56,33 @@ COLUMNS = [
 def _get_sheet():
     """Get authenticated Google Sheets client and worksheet."""
     try:
-        if not os.path.exists(SERVICE_ACCOUNT_FILE):
-            print(f"⚠️  Warning: Service account file not found: {SERVICE_ACCOUNT_FILE}")
-            print(f"   Please ensure the file exists at: {os.path.abspath(SERVICE_ACCOUNT_FILE)}")
-            return None
+        # First, try to get credentials from environment variable (for Railway deployment)
+        creds_json_str = os.getenv('GOOGLE_APPLICATION_CREDENTIALS_JSON')
+        
+        if creds_json_str:
+            # Parse JSON from environment variable
+            try:
+                creds_dict = json.loads(creds_json_str)
+                creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
+                print("✅ Using Google credentials from environment variable")
+            except json.JSONDecodeError as e:
+                print(f"⚠️  Warning: Could not parse GOOGLE_APPLICATION_CREDENTIALS_JSON: {str(e)}")
+                return None
+        else:
+            # Fall back to file-based credentials (for local development)
+            if not os.path.exists(SERVICE_ACCOUNT_FILE):
+                print(f"⚠️  Warning: Service account file not found: {SERVICE_ACCOUNT_FILE}")
+                print(f"   Please ensure the file exists at: {os.path.abspath(SERVICE_ACCOUNT_FILE)}")
+                print(f"   Or set GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable")
+                return None
             
-        creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+            creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+            print("✅ Using Google credentials from file")
+        
         client = gspread.authorize(creds)
         sheet = client.open_by_key(SHEET_ID).sheet1
         return sheet
+        
     except FileNotFoundError as e:
         print(f"⚠️  Warning: Service account file not found: {str(e)}")
         print(f"   Expected location: {os.path.abspath(SERVICE_ACCOUNT_FILE)}")
@@ -71,7 +90,6 @@ def _get_sheet():
     except Exception as e:
         print(f"⚠️  Warning: Could not connect to Google Sheets: {str(e)}")
         print(f"   Sheet ID: {SHEET_ID}")
-        print(f"   Service account: {SERVICE_ACCOUNT_FILE}")
         return None
 
 
