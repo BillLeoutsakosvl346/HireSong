@@ -2,6 +2,8 @@
 
 **Generate personalized AI-powered 30-second music video pitches to land your dream job!**
 
+Hello my friend
+
 HireSong is an AI-powered video generator that creates a unique 30-second music video pitch by analyzing your CV, the target company's website, and your selfie. It generates creative lyrics, transforms your photo into funny scenes, animates them, adds music, and assembles everything into a professional (yet ridiculous and memorable) video pitch.
 
 ---
