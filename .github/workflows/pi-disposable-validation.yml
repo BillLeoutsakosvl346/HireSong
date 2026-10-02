@@ -1,0 +1,30 @@
+name: Pi disposable validation
+on:
+  push:
+    branches:
+      - pi-live-1-0-validation-20261002
+      - pi-live-1-0-validation-20261002-daytona
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+jobs:
+  arithmetic:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out disposable validation branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Verify disposable arithmetic
+        run: node --input-type=module -e 'import {add,multiply} from "./.pi-live-validation/marker.mjs"; if(add(2,3)!==5 || multiply(2,3)!==6) throw Error("Disposable arithmetic validation failed");'
+      - name: Record fixture check completion
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+          RESULT: ${{ job.status }}
+        run: |
+          PR=$(gh api "repos/$REPO/pulls?head=${REPO%%/*}:$BRANCH&state=open" --jq '.[0].number // empty')
+          if [ -n "$PR" ]; then
+            gh api "repos/$REPO/issues/$PR/comments" -f body="Automated Pi live-validation fixture check completed: $RESULT. This is test infrastructure evidence, not a code-review approval."
+          fi
