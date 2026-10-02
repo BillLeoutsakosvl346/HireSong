@@ -11,3 +11,5 @@ A bounded babysit live validation is currently underway. The Babysit continuatio
 ## Pi Live Validation
 
 A bounded Pi live validation is currently underway.
+
+Pi live acceptance iteration: 20261002-final
